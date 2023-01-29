@@ -1,7 +1,8 @@
 <?php
 namespace Ciri\DTO;
+use JsonSerializable;
 
-class UserDTO{
+class CosmeticoDTO implements JsonSerializable {
 
     function __construct(
         private ?string $_id,
@@ -34,8 +35,21 @@ class UserDTO{
 
     }
 
-
-
-
+    function jsonSerialize(): mixed {
+        return [
+            '_id' => $this->_id,
+            'id' => $this->id,
+            'category' => $this->category,
+            'name' => $this->name,
+            'sort_description' => $this->sort_description,
+            'big_description' => $this->big_description,
+            'efficacy' => $this->efficacy,
+            'efficacy_about' => $this->efficacy_about,
+            'ingredients' => $this->ingredients,
+            'company' => $this->company,
+            'quantity' => $this->quantity,
+            'price' => $this->price
+        ];
+    }
 
 }

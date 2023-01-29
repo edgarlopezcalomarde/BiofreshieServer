@@ -4,64 +4,52 @@ namespace App\Http\Controllers;
 
 use App\Models\Carrito;
 use App\Models\Usuario;
+use Ciri\services\ICarritoService;
+use Ciri\services\impl\CarritoServiceImpl;
 use Illuminate\Http\Request;
 
 class CarritoController extends Controller
 {
 
+
+    private ICarritoService $servicio;
+    function __construct()
+    {
+        $this->servicio = new CarritoServiceImpl();
+    }
+
     public function index()
     {
-        $carritos = Carrito::get();
-        return response()->json($carritos, 200);
+        return response()->json($this->servicio->all(), 200);
     }
 
 
     public function store(Request $request)
     {
-        $carrito = new Carrito();
-        $carrito->cartid = $request->cartid;
-        $carrito->cart = $request->cart;
-        $carrito->userId = $request->userId;
-        $carrito->date = $request->date;
-        $carrito->status = $request->status;
-        $carrito->totalprice = $request->totalprice;
-        $carrito->save();
+       $this->servicio->insert($request);
     }
-
 
     public function show($id)
     {
-        $carrito = Carrito::get()->where('cartid',$id);
-        return $carrito;
+        return response()->json($this->servicio->find($id), 200);
     }
 
     public function searchByCartId($id){
-        $carrito  = Carrito::get()->where('cartid',$id);
-        return response()->json($carrito, 200);
+        return response()->json($this->servicio->find($id), 200);
     }
 
     public function searchByUserId($id){
-        $usuarioCarrito  = Carrito::get()->where('userId',$id);
-        return response()->json($usuarioCarrito, 200);
+        return response()->json($this->servicio->findByUser($id), 200);
     }
 
     //Request = body y Parametro = $id
     public function update(Request $request, $id){
-        $carrito = Carrito::findOrFail($id);
-        $carrito->cartid = $request->cartid;
-        $carrito->cart = $request->cart;
-        $carrito->userId = $request->userId;
-        $carrito->date = $request->date;
-        $carrito->status = $request->status;
-        $carrito->totalprice = $request->totalprice;
-        $carrito->save();
-        return [ "id"=> $id, "carrito"=> $carrito, "request"=>$request->status];
 
+        return  $this->servicio->update($request,$id);
     }
 
-
     public function destroy($id){
-       Carrito::destroy($id);
+        $this->servicio->delete($id);
        return response()->json(["message"=>"borrado la id: $id"], 200);
     }
 }

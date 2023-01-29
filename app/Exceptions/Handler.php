@@ -2,7 +2,12 @@
 
 namespace App\Exceptions;
 
+
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -25,26 +30,37 @@ class Handler extends ExceptionHandler
         //
     ];
 
-    /**
-     * A list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
-     */
+
     protected $dontFlash = [
         'current_password',
         'password',
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     *
-     * @return void
-     */
+    protected function shouldReturnJson($request, Throwable $e){
+        return true;
+    }
+
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+
+
+            if (request()->is('api*')) {
+
+
+                if ($e instanceof ModelNotFoundException)
+                    return response()->json(['error' => 'Recurso no encontrado bb'],404);
+                else if ($e instanceof NotFoundHttpException)
+                    return response()->json(['error' => 'Error: ' .$e->getMessage()], 500);
+                else if ($e instanceof Exception)
+                    return response()->json(['error' => 'Error: ' .$e->getMessage()], 500);
+                else if ($e instanceof ValidationException)
+                    return response()->json(['error' => 'Datos no válidos'],400);
+                else if (isset($e))
+                    return response()->json(['error' => 'Error: ' .$e->getMessage()], 500);
+
+            }
         });
     }
 }
