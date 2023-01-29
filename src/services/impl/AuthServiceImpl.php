@@ -19,7 +19,7 @@ class AuthServiceImpl implements IAuthService {
         return $this->auth->login($request);
     }
 
-    public function register(Request $request):bool{
+    public function register(Request $request):array{
         return $this->auth->register($request);
     }
 

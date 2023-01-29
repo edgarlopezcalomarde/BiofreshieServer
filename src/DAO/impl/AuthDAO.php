@@ -24,7 +24,7 @@ class AuthDAO implements IAuthDAO
 
         if(Auth::attempt($credenciales)){
             $usuario = Auth::user();
-            $token = $usuario->createToken('token')->plainTextToken; //Da que falla pero va lo que pasa esque no te inserta el expires porque es un perro
+            $token = Auth::login($usuario);
 
             return [
                 "token"=> $token,
@@ -40,7 +40,7 @@ class AuthDAO implements IAuthDAO
 
     }
 
-    public function register(Request $request): bool
+    public function register(Request $request): array
     {
 
         $validator = Validator::make($request->all(), [
@@ -50,8 +50,7 @@ class AuthDAO implements IAuthDAO
         ]);
 
         if ($validator->fails()) {
-            return false;
-            // return response()->json($validator->errors());
+            return $validator->errors();
         }
 
         $usuario = new Usuario();
@@ -59,7 +58,14 @@ class AuthDAO implements IAuthDAO
         $usuario->mail = $request->mail;
         $usuario->nick = $request->nick;
         $usuario->password = bcrypt($request->password);
-        return $usuario->save();
+        $usuario->save();
+
+        $token = Auth::login($usuario);
+
+        return [
+            "token "=> $token,
+            "usuario" => $usuario
+        ];
     }
 
 
@@ -71,8 +77,7 @@ class AuthDAO implements IAuthDAO
     }
 
     public function logOut(): bool{
-        $usuarioAutenticado = Auth::user();
-        Token::where('tokenable_id', $usuarioAutenticado->_id)->delete();
+        Auth::logout();
         return true;
     }
 }
