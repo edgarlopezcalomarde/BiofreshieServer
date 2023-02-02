@@ -43,23 +43,23 @@ class Handler extends ExceptionHandler
 
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-
-
+        $this->renderable(function (Throwable $exception) {
             if (request()->is('api*')) {
+                if ($exception instanceof ModelNotFoundException) {
 
+                    return response()->json(['error' => 'Recurso no encontrado'],404);
 
-                if ($e instanceof ModelNotFoundException)
-                    return response()->json(['error' => 'Recurso no encontrado bb'],404);
-                else if ($e instanceof NotFoundHttpException)
-                    return response()->json(['error' => 'Error: ' .$e->getMessage()], 500);
-                else if ($e instanceof Exception)
-                    return response()->json(['error' => 'Error: ' .$e->getMessage()], 500);
-                else if ($e instanceof ValidationException)
+                } else if ($exception instanceof ValidationException) {
+
                     return response()->json(['error' => 'Datos no válidos'],400);
-                else if (isset($e))
-                    return response()->json(['error' => 'Error: ' .$e->getMessage()], 500);
 
+                } else if (isset($exception)) {
+
+                    //Si no introduces el Bearer salta aqui
+
+                    return response()->json(['error' => 'Error: ' .$exception->getMessage()], 500);
+
+                }
             }
         });
     }
