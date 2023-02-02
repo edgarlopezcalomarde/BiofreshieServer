@@ -68,13 +68,6 @@ class AuthDAO implements IAuthDAO
     }
 
 
-    public function userProfile(){
-        return response()->json([
-            "message" => "userProfile OK",
-            "userData" => auth()->user()
-        ], 200);
-    }
-
     public function logOut(): bool{
 
         $token = Auth::getToken();
