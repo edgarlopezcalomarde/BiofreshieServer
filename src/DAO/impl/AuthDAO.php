@@ -5,7 +5,6 @@ namespace Ciri\DAO\impl;
 use Ciri\DAO\IAuthDAO;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
-use App\Models\Token;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +23,7 @@ class AuthDAO implements IAuthDAO
 
         if(Auth::attempt($credenciales)){
             $usuario = Auth::user();
-            $token = Auth::login($usuario);
+            $token = Auth::login($usuario); //almacen a el _id del usuario y lo mete como subject en el token
 
             return [
                 "token"=> $token,
@@ -77,6 +76,12 @@ class AuthDAO implements IAuthDAO
     }
 
     public function logOut(): bool{
+
+        $token = Auth::getToken();
+        $payload = Auth::getPayload($token)->toArray();
+
+        echo "Nos veremos en otra oacasion " . $payload["nick"];
+
         Auth::logout();
         return true;
     }
